@@ -1,0 +1,9 @@
+{"event": "connection", "source_ip": "127.0.0.1", "source_port": 35534, "timestamp": "2026-10-03T00:39:30.958267"}
+{"event": "disconnect", "source_ip": "127.0.0.1", "source_port": 35534, "timestamp": "2026-10-03T00:39:40.968475"}
+{"event": "connection", "source_ip": "127.0.0.1", "source_port": 50046, "timestamp": "2026-10-03T00:39:49.836704"}
+{"event": "disconnect", "source_ip": "127.0.0.1", "source_port": 50046, "timestamp": "2026-10-03T00:39:59.846300"}
+{"event": "connection", "source_ip": "127.0.0.1", "source_port": 37502, "timestamp": "2026-10-03T00:40:43.971143"}
+{"event": "disconnect", "source_ip": "127.0.0.1", "source_port": 37502, "timestamp": "2026-10-03T00:40:53.981293"}
+{"event": "connection", "source_ip": "127.0.0.1", "source_port": 52106, "timestamp": "2026-10-03T00:41:09.588062"}
+{"event": "data_received", "source_ip": "127.0.0.1", "source_port": 52106, "data": "hello", "timestamp": "2026-10-03T00:41:13.536846"}
+{"event": "disconnect", "source_ip": "127.0.0.1", "source_port": 52106, "timestamp": "2026-10-03T00:41:23.547002"}
