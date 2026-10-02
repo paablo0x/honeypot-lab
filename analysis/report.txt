@@ -1,0 +1,50 @@
+===================================
+        HONEYPOT INCIDENT REPORT
+===================================
+
+Summary
+-------
+Total connections: 11
+Unique source IPs: 1
+Login attempts: 6
+Password attempts: 6
+Failed authentications: 6
+Timeouts: 1
+
+Source IPs
+----------
+127.0.0.1 - 11 connection(s)
+
+Observed Usernames
+------------------
+admin - 2 attempt(s)
+root - 1 attempt(s)
+test - 1 attempt(s)
+ubuntu - 1 attempt(s)
+user - 1 attempt(s)
+
+Repeated Usernames
+------------------
+admin - 2 attempts
+
+Observed Passwords
+------------------
+[REDACTED] - 2 attempt(s)
+[REDACTED] - 1 attempt(s)
+[REDACTED] - 1 attempt(s)
+[REDACTED] - 1 attempt(s)
+[REDACTED] - 1 attempt(s)
+
+Repeated Passwords
+------------------
+[REDACTED] - 2 attempts
+
+Detection
+---------
+Potential brute-force activity detected from 127.0.0.1.
+Login attempts from source: 6
+
+Assessment
+----------
+The honeypot recorded repeated failed login attempts from at least one source.
+The activity exceeded the configured login-attempt threshold and was flagged for review.
