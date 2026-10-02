@@ -29,9 +29,19 @@ def main():
         if event["event"] == "connection"
     ]
 
-    data_received = [
+    login_attempts = [
         event for event in events
-        if event["event"] == "data_received"
+        if event["event"] == "login_attempt"
+    ]
+
+    password_attempts = [
+        event for event in events
+        if event["event"] == "password_attempt"
+    ]
+
+    failed_logins = [
+        event for event in events
+        if event["event"] == "authentication_failed"
     ]
 
     timeouts = [
@@ -44,6 +54,16 @@ def main():
         if event["event"] == "disconnect"
     ]
 
+    usernames = Counter(
+        event["username"]
+        for event in login_attempts
+    )
+
+    passwords = Counter(
+        event["password"]
+        for event in password_attempts
+    )
+
     source_ips = Counter(
         event["source_ip"]
         for event in connections
@@ -53,25 +73,28 @@ def main():
     print("        Honeypot Log Analysis")
     print("===================================")
 
-    print(f"Total connections: {len(connections)}")
-    print(f"Unique source IPs: {len(source_ips)}")
-    print(f"Data received:     {len(data_received)}")
-    print(f"Timeouts:          {len(timeouts)}")
-    print(f"Disconnects:       {len(disconnects)}")
+    print(f"Total connections:       {len(connections)}")
+    print(f"Unique source IPs:       {len(source_ips)}")
+    print(f"Login attempts:          {len(login_attempts)}")
+    print(f"Password attempts:       {len(password_attempts)}")
+    print(f"Failed authentications:  {len(failed_logins)}")
+    print(f"Timeouts:                {len(timeouts)}")
+    print(f"Disconnects:             {len(disconnects)}")
 
     print("\nSource IPs:")
 
     for ip, count in source_ips.most_common():
         print(f"  {ip}: {count} connection(s)")
 
-    if data_received:
-        print("\nReceived data:")
+    print("\nUsernames:")
 
-        for event in data_received:
-            print(
-                f"  {event['source_ip']} -> "
-                f"{event['data']}"
-            )
+    for username, count in usernames.most_common():
+        print(f"  {username}: {count} attempt(s)")
+
+    print("\nPasswords:")
+
+    for password, count in passwords.most_common():
+        print(f"  {password}: {count} attempt(s)")
 
 
 if __name__ == "__main__":

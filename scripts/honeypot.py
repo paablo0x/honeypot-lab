@@ -4,10 +4,13 @@ import socket
 import threading
 import json
 from datetime import datetime
+from pathlib import Path
 
 HOST = "0.0.0.0"
 PORT = 2222
-LOG_FILE = "data/connections.jsonl"
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+LOG_FILE = BASE_DIR / "data" / "connections.jsonl"
 
 
 def log_event(event):
@@ -17,6 +20,19 @@ def log_event(event):
         log.write(json.dumps(event) + "\n")
 
     print(event)
+
+
+def send_message(client_socket, message):
+    client_socket.sendall(message.encode())
+
+
+def receive_line(client_socket):
+    data = client_socket.recv(1024)
+
+    if not data:
+        return None
+
+    return data.decode(errors="replace").strip()
 
 
 def handle_client(client_socket, client_address):
@@ -30,40 +46,77 @@ def handle_client(client_socket, client_address):
         "source_port": port
     })
 
+    client_socket.settimeout(10)
+
     try:
-        client_socket.sendall(
-            b"SSH-2.0-OpenSSH_8.2p1 Ubuntu-4ubuntu0.5\r\n"
+        # Fake SSH banner
+        send_message(
+            client_socket,
+            "SSH-2.0-OpenSSH_8.2p1 Ubuntu-4ubuntu0.5\r\n"
         )
 
-        client_socket.settimeout(10)
+        # Fake username prompt
+        send_message(client_socket, "login: ")
 
-        while True:
-            data = client_socket.recv(1024)
+        username = receive_line(client_socket)
 
-            if not data:
-                break
+        if username is None:
+            return
 
-            message = data.decode(errors="replace").strip()
+        log_event({
+            "event": "login_attempt",
+            "source_ip": ip,
+            "source_port": port,
+            "username": username
+        })
 
-            log_event({
-                "event": "data_received",
-                "source_ip": ip,
-                "source_port": port,
-                "data": message
-            })
+        # Fake password prompt
+        send_message(client_socket, "password: ")
 
-            client_socket.sendall(b"Permission denied.\r\n")
+        password = receive_line(client_socket)
 
-except socket.timeout:
-    print(f"[-] Timeout from {ip}")
+        if password is None:
+            return
 
-    log_event({
-        "event": "timeout",
-        "source_ip": ip,
-        "source_port": port
-    })
+        log_event({
+            "event": "password_attempt",
+            "source_ip": ip,
+            "source_port": port,
+            "username": username,
+            "password": password
+        })
+
+        # Always fail authentication
+        send_message(
+            client_socket,
+            "\r\nAuthentication failed.\r\n"
+        )
+
+        log_event({
+            "event": "authentication_failed",
+            "source_ip": ip,
+            "source_port": port,
+            "username": username
+        })
+
+    except socket.timeout:
+        print(f"[-] Timeout from {ip}")
+
+        log_event({
+            "event": "timeout",
+            "source_ip": ip,
+            "source_port": port
+        })
+
     except Exception as e:
         print(f"[!] Error with {ip}: {e}")
+
+        log_event({
+            "event": "error",
+            "source_ip": ip,
+            "source_port": port,
+            "error": str(e)
+        })
 
     finally:
         log_event({
@@ -73,6 +126,7 @@ except socket.timeout:
         })
 
         client_socket.close()
+
         print(f"[-] Disconnected: {ip}")
 
 
